@@ -15,7 +15,8 @@ export default function Ventas() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View className="p-4 border-b border-gray-200">
-            <Text className="text-lg font-bold">{item.id}</Text>
+            <Text className="text-lg font-bold">ID {item.id}</Text>
+            <Text className="text-lg font-bold">Cliente {item.cliente.nombre}</Text>
           </View>
         )}
       />
