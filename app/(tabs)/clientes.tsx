@@ -4,6 +4,7 @@ import {
   Alert,
   TouchableOpacity,
   Text,
+  ActivityIndicator,
 } from "react-native";
 import { useState } from "react";
 import { useRouter } from "expo-router";
@@ -20,10 +21,26 @@ export default function ClientesScreen() {
 
   const [search, setSearch] = useState("");
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color="#2563eb" />
 
-  const filtered = data.filter((cliente: any) =>
-    cliente.nombre?.toLowerCase().includes(search.toLowerCase()),
+        <Text style={{ marginTop: 10 }}>Cargando clientes...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const filtered = data.filter(
+    (cliente: any) =>
+      cliente.nombre?.toLowerCase().includes(search.toLowerCase()) ||
+      cliente.telefono?.includes(search),
   );
 
   const handleDelete = (id: string) => {
@@ -54,7 +71,6 @@ export default function ClientesScreen() {
           marginBottom: 12,
         }}
       />
-
       <FlatList
         data={filtered}
         keyExtractor={(item: any) => item.id.toString()}
@@ -69,9 +85,30 @@ export default function ClientesScreen() {
             onDelete={() => handleDelete(item.id)}
           />
         )}
+        ListEmptyComponent={
+          <SafeAreaView
+            style={{
+              alignItems: "center",
+              marginTop: 60,
+            }}
+          >
+            <Text style={{ fontSize: 40 }}>🔍</Text>
+
+            <Text
+              style={{
+                marginTop: 10,
+                fontSize: 16,
+                color: "#666",
+              }}
+            >
+              No se encontraron clientes
+            </Text>
+          </SafeAreaView>
+        }
       />
+
       <TouchableOpacity
-        onPress={() => router.push({pathname: "/clientes/form"})}
+        onPress={() => router.push({ pathname: "/clientes/form" })}
         style={{
           position: "absolute",
           bottom: 30,
@@ -89,9 +126,7 @@ export default function ClientesScreen() {
           elevation: 6,
         }}
       >
-        <Text style={{ color: "#fff", fontSize: 28, fontWeight: "bold" }}>
-          <Plus color="white" size={28} />
-        </Text>
+        <Plus color="white" size={28} />
       </TouchableOpacity>
     </SafeAreaView>
   );
