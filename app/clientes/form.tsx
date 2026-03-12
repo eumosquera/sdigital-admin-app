@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets  } from "react-native-safe-area-context";
+import { SafeAreaView  } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
 import { api } from "@/src/api/axios";
@@ -42,7 +42,7 @@ export default function ClienteForm() {
     };
 
     loadCliente();
-  }, []);
+  }, [id]);
 
   const handleSave = async () => {
     setLoading(true);
@@ -70,8 +70,6 @@ export default function ClienteForm() {
     queryClient.invalidateQueries({ queryKey: ["clientes"] });
     router.back();
   };
-  const insets = useSafeAreaInsets();
-
 
   return (
     <KeyboardAvoidingView

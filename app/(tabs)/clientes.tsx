@@ -13,6 +13,8 @@ import ClientCard from "@/components/ClientCard";
 import { useClientes } from "@/hooks/useClientes";
 import { useDeleteCliente } from "@/hooks/useDeleteCliente";
 import { Plus } from "lucide-react-native";
+import { formatName } from "@/src/utils/formaText";
+
 export default function ClientesScreen() {
   const router = useRouter();
 
@@ -78,7 +80,7 @@ export default function ClientesScreen() {
         renderItem={({ item }: any) => (
           <ClientCard
             id={item.id}
-            nombre={item.nombre}
+            nombre={formatName(item.nombre)}
             telefono={item.telefono}
             onPress={() => router.push(`/clientes/form?id=${item.id}`)}
             onEdit={() => router.push(`/clientes/form?id=${item.id}`)}
