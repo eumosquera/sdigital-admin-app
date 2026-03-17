@@ -6,18 +6,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { formatName } from "@/src/utils/formaText";
+import { PLATFORM_LOGOS, getPlatformSuggestions } from "@/src/utils/logos";
 
 import { api } from "@/src/api/axios";
 import {
@@ -47,6 +44,7 @@ export default function PlataformaForm() {
   const [tipo, setTipo] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -65,35 +63,55 @@ export default function PlataformaForm() {
   }, [id]);
 
   const handleSave = async () => {
-    setLoading(true);
-    if (id) {
-      await updatePlataforma(id as string, {
-        nombre,
-        descripcion,
-        logo,
-        precioBase,
-        tipo,
-      });
-      Toast.show({ type: "success", text1: "Plataforma actualizada." });
+    try {
+      setLoading(true);
+      if (id) {
+        await updatePlataforma(id as string, {
+          nombre: formatName(nombre),
+          descripcion,
+          logo,
+          precioBase,
+          tipo,
+        });
+        Toast.show({ type: "success", text1: "Plataforma actualizada." });
+      } else {
+        await createPlataforma({
+          nombre: formatName(nombre),
+          descripcion,
+          logo,
+          precioBase,
+          tipo,
+        });
+        Toast.show({
+          type: "success",
+          text1: "Plataforma creada correctamente.",
+        });
+      }
+      //refres
       setLoading(false);
-    } else {
-      await createPlataforma({
-        nombre,
-        descripcion,
-        logo,
-        precioBase,
-        tipo,
-      });
+      queryClient.invalidateQueries({ queryKey: ["plataformas"] });
+      router.back();
+    } catch (error) {
       Toast.show({
-        type: "success",
-        text1: "Plataforma creada correctamente.",
+        type: "error",
+        text1: "Error guardando plataforma",
       });
+    } finally {
       setLoading(false);
     }
-    //refres
-    setLoading(false);
-    queryClient.invalidateQueries({ queryKey: ["plataformas"] });
-    router.back();
+  };
+
+  const handleNombreChange = (value: string) => {
+    setNombre(value);
+
+    const matches = getPlatformSuggestions(value);
+
+    setSuggestions(matches);
+
+    if (matches.length > 0) {
+      const firstMatch = matches[0];
+      setLogo(PLATFORM_LOGOS[firstMatch]);
+    }
   };
 
   return (
@@ -117,9 +135,9 @@ export default function PlataformaForm() {
             <View style={styles.inputContainer}>
               <Smartphone size={18} color="#2563eb" />
               <TextInput
-                placeholder="Nombre completo"
-                value={formatName(nombre)}
-                onChangeText={setNombre}
+                placeholder="Nombre"
+                value={nombre}
+                onChangeText={handleNombreChange}
                 style={styles.input}
               />
             </View>
@@ -148,7 +166,7 @@ export default function PlataformaForm() {
                 value={precioBase}
                 onChangeText={setPrecioBase}
                 style={styles.input}
-                keyboardType="phone-pad"
+                keyboardType="numeric"
               />
             </View>
           </View>
@@ -159,11 +177,53 @@ export default function PlataformaForm() {
             <ImageIcon size={18} color="#2563eb" />
 
             <TextInput
-              placeholder="/images/netflix.webp"
+              placeholder="url logo"
               value={logo}
               onChangeText={setLogo}
               style={styles.input}
             />
+            {suggestions.length > 0 && (
+              <View
+                style={{
+                  backgroundColor: "#fff",
+                  borderRadius: 50,
+                  borderWidth: 1,
+                  borderColor: "#ddd",
+                  marginTop: 6,
+                }}
+              >
+                {suggestions.slice(0, 5).map((item) => (
+                  <TouchableOpacity
+                    key={item}
+                    onPress={() => {
+                      setNombre(item);
+                      setLogo(PLATFORM_LOGOS[item]);
+                      setSuggestions([]);
+                    }}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      padding: 12,
+                      borderBottomWidth: 1,
+                      borderBottomColor: "#eee",
+                    }}
+                  >
+                    <Image
+                      source={{ uri: `${API_URL}${PLATFORM_LOGOS[item]}` }}
+                      style={{
+                        width: 24,
+                        height: 24,
+                        marginRight: 10,
+                        resizeMode: "contain",
+                        borderRadius: 50,
+                      }}
+                    />
+
+                    <Text>{item}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
           {logo && (
             <Image
@@ -174,6 +234,7 @@ export default function PlataformaForm() {
                 alignSelf: "center",
                 marginTop: 10,
                 resizeMode: "contain",
+                borderRadius: 50,
               }}
             />
           )}
@@ -189,14 +250,17 @@ export default function PlataformaForm() {
                 value={descripcion}
                 onChangeText={setDescripcion}
                 style={styles.input}
-                
               />
             </View>
           </View>
         </ScrollView>
         <View style={styles.footer}>
-          <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-            <Text style={styles.saveText}>
+          <TouchableOpacity
+            onPress={handleSave}
+            style={styles.saveButton}
+            disabled={loading}
+          >
+            <Text style={[styles.saveText, loading && { opacity: 0.6 }]}>
               {loading ? "Guardando..." : "GUARDAR"}
             </Text>
           </TouchableOpacity>
@@ -221,18 +285,6 @@ const styles = {
   input: {
     flex: 1,
     paddingVertical: 12,
-  } as const,
-
-  switchContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: "#fff",
   } as const,
 
   footer: {
