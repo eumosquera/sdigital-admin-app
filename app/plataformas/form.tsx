@@ -152,8 +152,12 @@ export default function PlataformaForm() {
               style={{ flex: 1 }}
               onValueChange={(itemValue) => setTipo(itemValue)}
             >
-              <Picker.Item label="Tipo" value="Seleccione" />
+              <Picker.Item label="<Tipo>" value="Seleccione" />
               <Picker.Item label="Streaming" value="STREAMING" />
+              <Picker.Item label="Música" value="MUSICA" />
+              <Picker.Item label="Gaming" value="GAMING" />
+              <Picker.Item label="TV" value="TV" />
+              <Picker.Item label="Otro" value="OTRO" />
             </Picker>
           </View>
           <View style={{ marginBottom: 16 }}>
