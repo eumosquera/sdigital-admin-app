@@ -88,7 +88,7 @@ export default function CuentaCard({ cuenta, onPress }: any) {
           textAlign: "center",
           marginTop: 4,
           fontSize: 13,
-          color: "#333",
+          color: "blue",
         }}
       >
         Stock: {cuenta.stock} perfiles

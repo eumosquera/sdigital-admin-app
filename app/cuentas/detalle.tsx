@@ -5,12 +5,15 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useCuenta } from "@/hooks/useCuenta";
+import { useRenovarCuenta } from "@/hooks/useRenovarCuenta";
+import { useDeleteCuenta } from "@/hooks/useDeleteCuenta";
 import { getCuentaStatus } from "@/src/utils/cuentaStatus";
 import { formatDate, getExpirationText } from "@/src/utils/formatDate";
 import { getPerfilStatus } from "@/src/utils/perfilStatus";
@@ -21,6 +24,8 @@ const API_URL = "https://sdigital-diego-i6x5.vercel.app";
 export default function CuentaDetalle() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const renovarCuenta = useRenovarCuenta();
+const deleteCuenta = useDeleteCuenta();
 
   const { data: cuenta, isLoading } = useCuenta(id);
 
@@ -35,6 +40,49 @@ export default function CuentaDetalle() {
   }
 
   const status = getCuentaStatus(cuenta);
+
+  const handleRenovar = (cuenta: any) => {
+    Alert.alert(
+      "Renovar cuenta",
+      "Se registrará una nueva compra para esta cuenta y comenzará un nuevo periodo. ¿Desea continuar?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Renovar",
+          onPress: () => {
+            renovarCuenta.mutate({
+              cuentaId: cuenta.id.toString(),
+              dias: 30,
+              precioCompra: cuenta.precioCompra,
+            });
+          },
+        },
+      ],
+    );
+  };
+
+const handleDeleteCuenta = (cuentaId: string) => {
+  Alert.alert(
+    "Eliminar cuenta",
+    "¿Deseas eliminar esta cuenta?",
+    [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Eliminar",
+        style: "destructive",
+        onPress: () => {
+          deleteCuenta.mutate(cuentaId);
+        },
+      },
+    ]
+  );
+};
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f3f4f6" }}>
@@ -195,14 +243,23 @@ export default function CuentaDetalle() {
 
           <TouchableOpacity
             style={[styles.button, { backgroundColor: "#f59e0b" }]}
+            onPress={() => handleRenovar(cuenta)}
           >
             <Text style={styles.buttonText}>Renovar</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.button, { backgroundColor: "#ef4444" }]}
+            onPress={() => handleDeleteCuenta(cuenta.id.toString())}
           >
             <Text style={styles.buttonText}>Eliminar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#10b981" }]}
+            onPress={() => router.push(`/perfiles/form?cuentaId=${cuenta.id}`)}
+          >
+            <Text style={styles.buttonText}>Nuevo Perfil</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

@@ -11,6 +11,5 @@ export default function AuthLayout() {
   if (token) {
     return <Redirect href="/(tabs)" />;
   }
-console.log("No token found, rendering auth stack");
   return <Stack screenOptions={{ headerShown:false }} />;
 }

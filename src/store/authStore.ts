@@ -14,7 +14,6 @@ export const useAuthStore = create((set) => ({
         token,
         loading: false,
       });
-      console.log("TOKEN STORAGE:", token);
 
     } catch (error) {
 
