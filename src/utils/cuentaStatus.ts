@@ -7,6 +7,10 @@ export function getCuentaStatus(cuenta: any) {
     (vence.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24)
   );
 
+  if (cuenta.estado === "en_soporte"){
+    return {label: "EN SOPORTE", color: "#a855f7"}
+  }
+
   if (diff < 0) {
     return { label: "VENCIDA", color: "#f97316" };
   }

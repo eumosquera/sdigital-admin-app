@@ -3,7 +3,6 @@ import {
   FlatList,
   ActivityIndicator,
   TextInput,
-  View,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
@@ -11,6 +10,7 @@ import {
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Plus } from "lucide-react-native";
 
 import CuentaCard from "@/components/CuentaCard";
 import { useCuentas } from "@/hooks/useCuentas";
@@ -21,12 +21,13 @@ type CuentaFilter =
   | "DISPONIBLE"
   | "VENCIDA"
   | "AGOTADA"
-  | "POR VENCER";
+  | "POR VENCER"
+  | "EN SOPORTE";
 
 export default function CuentasScreen() {
   const router = useRouter();
 
-  const { data , isLoading } = useCuentas();
+  const { data, isLoading } = useCuentas();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<CuentaFilter>("TOTAL");
@@ -76,6 +77,9 @@ export default function CuentasScreen() {
     "POR VENCER": data.filter(
       (c: any) => getCuentaStatus(c).label === "POR VENCER",
     ).length,
+    "EN SOPORTE": data.filter(
+      (c: any) => getCuentaStatus(c).label === "EN SOPORTE",
+    ).length,
   };
 
   const filters: { key: CuentaFilter; label: string }[] = [
@@ -84,6 +88,7 @@ export default function CuentasScreen() {
     { key: "VENCIDA", label: "Vencidas" },
     { key: "AGOTADA", label: "Agotadas" },
     { key: "POR VENCER", label: "Por vencer" },
+    { key: "EN SOPORTE", label: "En soporte" },
   ];
 
   return (
@@ -157,8 +162,7 @@ export default function CuentasScreen() {
         renderItem={({ item }: any) => (
           <CuentaCard
             cuenta={item}
-
-            //onPress={()=>router.push(`/cuentas/detalle?id=${item.id}`)}
+            onPress={() => router.push(`/cuentas/detalle?id=${item.id}`)}
           />
         )}
         ListEmptyComponent={
@@ -174,6 +178,7 @@ export default function CuentasScreen() {
           </Text>
         }
       />
+      <Plus color="white" size={28} />
     </SafeAreaView>
   );
 }
