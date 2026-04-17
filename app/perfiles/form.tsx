@@ -19,6 +19,7 @@ import { useCreatePerfil } from "@/hooks/useCreatePerfil";
 import { useUpdatePerfil } from "@/hooks/useUpdatePerfil";
 import { api } from "@/src/api/axios";
 import { useDeletePerfil } from "@/hooks/useDeletePerfil";
+import { useCuentas } from "@/hooks/useCuentas";
 
 export default function PerfilForm() {
   const { cuentaId, perfilId } = useLocalSearchParams();
@@ -30,7 +31,7 @@ export default function PerfilForm() {
   const createPerfil = useCreatePerfil();
   const queryClient = useQueryClient();
   const deletePerfil = useDeletePerfil();
-
+  const getCuentas = useCuentas();
   const [nombre, setNombre] = useState("");
   const [pin, setPin] = useState("");
   const [estado, setEstado] = useState("libre");
@@ -76,6 +77,7 @@ export default function PerfilForm() {
         });
       }
       queryClient.invalidateQueries({ queryKey: ["cuenta", cuentaId] });
+      getCuentas.refetch();
       router.back();
     } catch (error) {
       console.error("Error al guardar el perfil:", error);
@@ -103,6 +105,7 @@ export default function PerfilForm() {
             },
             {
               onSuccess: () => {
+                getCuentas.refetch();
                 router.back();
               },
             },

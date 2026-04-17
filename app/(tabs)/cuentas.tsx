@@ -5,12 +5,13 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  View,
 } from "react-native";
 
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Plus } from "lucide-react-native";
+import { Plus, RefreshCw } from "lucide-react-native";
 
 import CuentaCard from "@/components/CuentaCard";
 import { useCuentas } from "@/hooks/useCuentas";
@@ -28,6 +29,7 @@ export default function CuentasScreen() {
   const router = useRouter();
 
   const { data, isLoading } = useCuentas();
+  const refreshCuentas = useCuentas();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<CuentaFilter>("TOTAL");
@@ -178,7 +180,40 @@ export default function CuentasScreen() {
           </Text>
         }
       />
-      <Plus color="white" size={28} />
+      <View
+        style={{
+          position: "absolute",
+          bottom: 30,
+          right: 20,
+          gap: 12,
+        }}
+      >
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => router.push({ pathname: "/cuentas/form" })}
+        >
+          <Plus color="white" size={28} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => refreshCuentas.refetch()}
+        >
+          <RefreshCw color="white" size={28} />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
+
+const styles = {
+  fab: {
+    backgroundColor: "#2563eb",
+    width: 60,
+    height: 60,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 6,
+  } as const,
+};

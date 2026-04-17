@@ -25,7 +25,7 @@ export default function CuentaDetalle() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const renovarCuenta = useRenovarCuenta();
-const deleteCuenta = useDeleteCuenta();
+  const deleteCuenta = useDeleteCuenta();
 
   const { data: cuenta, isLoading } = useCuenta(id);
 
@@ -64,11 +64,8 @@ const deleteCuenta = useDeleteCuenta();
     );
   };
 
-const handleDeleteCuenta = (cuentaId: string) => {
-  Alert.alert(
-    "Eliminar cuenta",
-    "¿Deseas eliminar esta cuenta?",
-    [
+  const handleDeleteCuenta = (cuentaId: string) => {
+    Alert.alert("Eliminar cuenta", "¿Deseas eliminar esta cuenta?", [
       {
         text: "Cancelar",
         style: "cancel",
@@ -78,11 +75,11 @@ const handleDeleteCuenta = (cuentaId: string) => {
         style: "destructive",
         onPress: () => {
           deleteCuenta.mutate(cuentaId);
+          router.back();
         },
       },
-    ]
-  );
-};
+    ]);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f3f4f6" }}>
